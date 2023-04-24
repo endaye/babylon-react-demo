@@ -1,13 +1,15 @@
 import React from "react";
-import { FreeCamera, Vector3, HemisphericLight, MeshBuilder } from "@babylonjs/core";
+import { FreeCamera, ArcRotateCamera, Vector3, HemisphericLight, MeshBuilder, SceneLoader } from "@babylonjs/core";
+import "@babylonjs/loaders/glTF";
 import SceneComponent from "babylonjs-hook";
 import "./App.css";
 
 let box;
 
-const onSceneReady = (scene) => {
+const onSceneReady = async (scene) => {
   // This creates and positions a free camera (non-mesh)
-  const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
+  // const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
+  var camera = new ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 4, 10, new Vector3(0, -5, 0), scene);
 
   // This targets the camera to scene origin
   camera.setTarget(Vector3.Zero());
@@ -27,13 +29,35 @@ const onSceneReady = (scene) => {
   box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
 
   // Move the box upward 1/2 its height
-  box.position.y = 1;
+  box.position = new Vector3(2, 2, 0);
 
   const ball = MeshBuilder.CreateSphere("sphere", { diameter: 2 }, scene);
   ball.position = new Vector3(-4, 2, 0);
 
   // Our built-in 'ground' shape.
   MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
+
+  SceneLoader.ImportMesh(
+    "",
+    "https://assets.babylonjs.com/meshes/",
+    "HVGirl.glb",
+    scene,
+    function (newMeshes, particleSystems, skeletons, animationGroups) {
+      var hero = newMeshes[0];
+
+      //Scale the model down
+      hero.scaling.scaleInPlace(0.1);
+
+      //Lock camera on the character
+      camera.target = hero;
+
+      // //Get the Samba animation Group
+      // const sambaAnim = scene.getAnimationGroupByName("Samba");
+
+      // //Play the Samba animation
+      // sambaAnim.start(true, 1.0, sambaAnim.from, sambaAnim.to, false);
+    }
+  );
 };
 
 /**
