@@ -1,5 +1,14 @@
 import React from "react";
-import { FreeCamera, ArcRotateCamera, Vector3, HemisphericLight, MeshBuilder, SceneLoader } from "@babylonjs/core";
+import {
+  FreeCamera,
+  ArcRotateCamera,
+  Vector2,
+  Vector3,
+  HemisphericLight,
+  MeshBuilder,
+  SceneLoader,
+  Color4,
+} from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import SceneComponent from "babylonjs-hook";
 import "./App.css";
@@ -7,12 +16,17 @@ import "./App.css";
 let box;
 
 const onSceneReady = async (scene) => {
+  scene.clearColor = new Color4(0, 0, 0, 0.000001);
+  scene.getEngine().setHardwareScalingLevel(0.5);
+
   // This creates and positions a free camera (non-mesh)
   // const camera = new FreeCamera("camera1", new Vector3(0, 5, -10), scene);
-  var camera = new ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 4, 10, new Vector3(0, -5, 0), scene);
+  var camera = new ArcRotateCamera("camera1", Math.PI / 2, Math.PI / 3, 10, new Vector3(0, -5, 0), scene);
 
   // This targets the camera to scene origin
-  camera.setTarget(Vector3.Zero());
+  camera.setTarget(Vector3.Up());
+  camera.minZ = 0.1;
+  camera.maxZ = 100;
 
   const canvas = scene.getEngine().getRenderingCanvas();
 
@@ -23,7 +37,7 @@ const onSceneReady = async (scene) => {
   const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
 
   // Default intensity is 1. Let's dim the light a small amount
-  light.intensity = 0.7;
+  light.intensity = 2;
 
   // Our built-in 'box' shape.
   box = MeshBuilder.CreateBox("box", { size: 2 }, scene);
@@ -37,27 +51,22 @@ const onSceneReady = async (scene) => {
   // Our built-in 'ground' shape.
   MeshBuilder.CreateGround("ground", { width: 6, height: 6 }, scene);
 
-  SceneLoader.ImportMesh(
-    "",
-    "https://assets.babylonjs.com/meshes/",
-    "HVGirl.glb",
-    scene,
-    function (newMeshes, particleSystems, skeletons, animationGroups) {
-      var hero = newMeshes[0];
+  SceneLoader.ImportMesh("", "/3d/", "female.glb", scene, (newMeshes, particleSystems, skeletons, animationGroups) => {
+    var hero = newMeshes[0];
 
-      //Scale the model down
-      hero.scaling.scaleInPlace(0.1);
+    //Scale the model down
+    hero.scaling.scaleInPlace(1);
 
-      //Lock camera on the character
-      camera.target = hero;
+    //Lock camera on the character
+    camera.target = hero;
+    camera.targetScreenOffset = new Vector2(0, -1);
 
-      // //Get the Samba animation Group
-      // const sambaAnim = scene.getAnimationGroupByName("Samba");
+    // //Get the Samba animation Group
+    // const sambaAnim = scene.getAnimationGroupByName("Samba");
 
-      // //Play the Samba animation
-      // sambaAnim.start(true, 1.0, sambaAnim.from, sambaAnim.to, false);
-    }
-  );
+    // //Play the Samba animation
+    // sambaAnim.start(true, 1.0, sambaAnim.from, sambaAnim.to, false);
+  });
 };
 
 /**
@@ -74,7 +83,7 @@ const onRender = (scene) => {
 
 const App = () => (
   <div>
-    <SceneComponent antialias onSceneReady={onSceneReady} onRender={onRender} id="my-canvas" />
+    <SceneComponent antialias adaptToDeviceRatio onSceneReady={onSceneReady} onRender={onRender} id="my-canvas" />
   </div>
 );
 

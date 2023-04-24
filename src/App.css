@@ -1,10 +1,15 @@
+body {
+  background-color: blueviolet;
+}
+
 #root {
+  position: relative;
   max-width: 1280px;
   width: 90vw;
+  height: 90vh;
   margin: 0 auto;
-  padding: 2rem;
+  /* padding: 2rem; */
   text-align: center;
-
 }
 
 #my-canvas {
